@@ -7,10 +7,28 @@ var async = require('async');
 
 var hosts = new Datastore({ filename: './.db/hosts', autoload: true });
 
+var timeToLive = 1000 * 60 * 60 * 24 * 10;
+
 (function cleanup() {
   hosts.find({}, function (err, docs) {
     if (err) { console.error(err); }
-
+    async.each(docs, function (doc, callback) {
+      if (new Date() - doc.created > timeToLive) {
+        return hosts.remove({_id: doc._id}, {}, function (err, numRemoved) {
+          if (!err && numRemoved) {
+            console.log('Host, %s, with name "%s", removed', doc.address, doc.name);
+          }
+          callback(null);
+        });
+      }
+      setImmediate(function () {
+        callback(null);
+      });
+    }, function () {
+      setTimeout(function () {
+        cleanup();
+      }, 10000);
+    });
   });
 }());
 
