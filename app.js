@@ -7,7 +7,7 @@ var async = require('async');
 
 var hosts = new Datastore({ filename: './.db/hosts', autoload: true });
 
-var timeToLive = 1000 * 60 * 60 * 24 * 10;
+var timeToLive = settings.get('ttl') || 1000 * 60 * 60 * 24 * 10;
 
 (function cleanup() {
   hosts.find({}, function (err, docs) {
@@ -88,7 +88,7 @@ app.post(
   }
 );
 
-app.listen(settings.get('port'), function () {
+app.listen(settings.get('port') || 6000, function () {
   var rinfo = this.address();
   var address = rinfo.address;
   var port = rinfo.port;
