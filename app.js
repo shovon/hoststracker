@@ -4,6 +4,7 @@ var settings = require('./settings');
 var Datastore = require('nedb');
 var _ = require('lodash');
 var async = require('async');
+var util = require('util');
 
 var hosts = new Datastore({ filename: './.db/hosts', autoload: true });
 
@@ -60,6 +61,13 @@ app.get(
   function (req, res, next) {
     hosts.find({ name: req.params.name }, function (err, docs) {
       if (err) { return next(err); }
+      if (!docs.length) {
+        return res.send(404, {
+          'message': util.format(
+            'Host with name, "%s", not found', req.params.name
+          )
+        });
+      }
       res.json(_.pick(docs[0], 'name', 'address', 'created'));
     });
   }
