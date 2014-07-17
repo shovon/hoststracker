@@ -16,7 +16,7 @@ var timeToLive = settings.get('ttl') || 1000 * 60 * 60 * 24 * 10;
       if (new Date() - doc.created > timeToLive) {
         return hosts.remove({_id: doc._id}, {}, function (err, numRemoved) {
           if (!err && numRemoved) {
-            console.log('Host, %s, with name "%s", removed', doc.address, doc.name);
+            console.log('%s: host, %s, with name "%s", removed', new Date().toString(), doc.address, doc.name);
           }
           callback(null);
         });
@@ -84,6 +84,7 @@ app.post(
     hosts.update(search, toUpsert, { upsert: true }, function (err, numReplaced, upsert) {
       if (err) { return next(err); }
       res.json(201, {message: 'Success!'});
+      console.log('%s: host %s, with name "%s", added', new Date().toString(), req.body.name, req.connection.remoteAddress);
     });
   }
 );
